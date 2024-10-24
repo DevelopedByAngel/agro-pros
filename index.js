@@ -178,6 +178,7 @@ app.get("/feeds/:id", (req, res) => {
 	var noOfPost = 0;
 	client.connect(url, function (err, db) {
 		assert.equal(null, err);
+		
 		var user = db.db("Clone").collection("users");
 		var database = db.db("Clone").collection("post");
 		user.findOne({ _id: objectId(id) }, (error1, u) => {
@@ -215,17 +216,19 @@ app.get("/feeds/:id", (req, res) => {
 	});
 });
 
-app.get("/hashtags/:hashtag", (req, res) => {
+app.get("/hashtags/:hashtag", async (req, res) => {
 	const { hashtag } = req.params;
-	client.connect(url, function (err, db) {
+	client.connect(url, async function (err, db) {
+		assert.equal(err,null);
 		var found = [];
 		var database = db.db("Clone").collection("post");
 		var find = database.find({ hashtags: "#" + hashtag });
-		find.forEach((f, error) => {
+		await find.forEach((f, error) => {
 			assert.equal(null, error);
 			found.push(f);
 			if (found.length === 10) res.json(found.reverse());
 		});
+		res.json(found.reverse());
 	});
 });
 
@@ -234,4 +237,6 @@ app.get("/", (req, res) => {
 	res.json("Hello world");
 });
 
-app.listen(3000 || process.env.PORT);
+console.log("imported functions")
+
+app.listen(process.env.PORT || 80);
